@@ -1,3 +1,4 @@
+
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
 from app.db.database import get_db
@@ -33,6 +34,9 @@ async def register_teacher(
     subjects: str = Form(...),
     hourly_fee: int = Form(...),
     address: str = Form(...),
+    
+    latitude: float = Form(...),
+    longitude: float = Form(...),
 
     aadhaar_file: UploadFile = File(...),
     voter_file: UploadFile = File(...),
@@ -68,10 +72,16 @@ async def register_teacher(
         voter_id_url=voter_url,
         qualification_url=qualification_url,
 
+        latitude=latitude,
+       longitude=longitude,
+
         experience=experience,
         subjects=subjects,
         hourly_fee=hourly_fee,
         address=address
+
+       
+       
     )
 
     user = register_teacher_service(
@@ -104,4 +114,5 @@ def verify_token(token: str):
     payload = decode_token(token)
     if not payload:
         raise HTTPException(status_code=401, detail="Invalid token")
-    return {"valid": True, "payload": payload}
+    return {"valid": True, "payload": payload}  
+
