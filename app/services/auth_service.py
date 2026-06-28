@@ -96,7 +96,7 @@ def login(db: Session, login_data: Login):
         user = db.query(Teacher).filter(Teacher.email == login_data.email).first()
         if not user or not verify_password(login_data.password, user.password_hash):
             raise HTTPException(
-                status_code=status.HTTP_401_AUTHORIZED,
+                status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
     else:
