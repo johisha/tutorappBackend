@@ -40,6 +40,9 @@ def get_nearby_teachers(
     db: Session = Depends(get_db)
 ):
     """Get teachers within radius kilometers"""
+    print("Student Latitude :", lat)
+    print("Student Longitude:", lng)
+    print("Radius           :", radius)
     return get_teachers_nearby(db, lat, lng, radius)
 
 

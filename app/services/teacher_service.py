@@ -18,7 +18,7 @@ def haversine_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> fl
     dlng = lng2_rad - lng1_rad
     
     a = math.sin(dlat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlng / 2) ** 2
-    c = 2 * math.asqrt(a)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
     
     return R * c
 
@@ -29,7 +29,11 @@ def get_all_teachers(db: Session):
     result = []
     for teacher in teachers:
         review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
-        avg_rating = db.query(Review.rating).filter(Review.teacher_id == teacher.id).avg()
+        avg_rating = (
+    db.query(func.avg(Review.rating))
+    .filter(Review.teacher_id == teacher.id)
+    .scalar()
+)
         
         teacher_dict = {
             "id": teacher.id,
@@ -62,7 +66,11 @@ def get_teacher_by_id(db: Session, teacher_id: int):
         )
     
     review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
-    avg_rating = db.query(Review.rating).filter(Review.teacher_id == teacher.id).avg()
+    avg_rating = (
+    db.query(func.avg(Review.rating))
+    .filter(Review.teacher_id == teacher.id)
+    .scalar()
+)
     
     teacher_dict = {
         "id": teacher.id,
@@ -109,12 +117,27 @@ def get_teachers_nearby(db: Session, lat: float, lng: float, radius: float = 5):
     
     result = []
     for teacher in teachers:
-        if teacher.latitude and teacher.longitude:
-            distance = haversine_distance(lat, lng, teacher.latitude, teacher.longitude)
-            
-            if distance <= radius:
+
+     if teacher.latitude and teacher.longitude:
+
+        distance = haversine_distance(lat, lng, teacher.latitude, teacher.longitude)
+
+        print("\n========== LOCATION DEBUG ==========")
+        print(f"Student Location : {lat}, {lng}")
+        print(f"Teacher Name     : {teacher.name}")
+        print(f"Teacher Location : {teacher.latitude}, {teacher.longitude}")
+        print(f"Distance         : {distance:.2f} km")
+        print(f"Radius           : {radius} km")
+        print("====================================\n")
+
+        if distance <= radius:
+    
                 review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
-                avg_rating = db.query(Review.rating).filter(Review.teacher_id == teacher.id).avg()
+                avg_rating = (
+    db.query(func.avg(Review.rating))
+    .filter(Review.teacher_id == teacher.id)
+    .scalar()
+)
                 
                 teacher_dict = {
                     "id": teacher.id,

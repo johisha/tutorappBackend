@@ -1,5 +1,4 @@
 __pycache__
 .env
 .env.example
-database.py
 pg_hba.conf.txt
