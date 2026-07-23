@@ -85,27 +85,14 @@ def login(db: Session, login_data: Login):
             "role": "admin",
             "user_id": 0
         }
-    # if login_data.role == "student":
-    #     user = db.query(Student).filter(Student.email == login_data.email).first()
-    #     if not user or not verify_password(login_data.password, user.password_hash):
-    #         raise HTTPException(
-    #             status_code=status.HTTP_401_UNAUTHORIZED,
-    #             detail="Invalid email or password"
-    #         )
     if login_data.role == "student":
         user = db.query(Student).filter(Student.email == login_data.email).first()
-
-    print("User Found:", user)
-
-    if user:
-        print("Stored Hash:", user.password_hash)
-        print("Password Match:", verify_password(login_data.password, user.password_hash))
-
-    if not user or not verify_password(login_data.password, user.password_hash):
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid email or password"
-        )
+        if not user or not verify_password(login_data.password, user.password_hash):
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+    
     elif login_data.role == "teacher":
         user = db.query(Teacher).filter(Teacher.email == login_data.email).first()
         if not user or not verify_password(login_data.password, user.password_hash):
