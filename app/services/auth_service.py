@@ -72,6 +72,16 @@ def login(db: Session, login_data: Login):
     if login_data.role == "admin":
         admin = db.query(Admin).filter(Admin.email == login_data.email).first()
 
+        print("ADMIN FOUND:", admin)
+
+        if admin:
+           print("EMAIL FROM DB:", admin.email)
+           print("HASH FROM DB:", admin.password_hash)
+           print(
+                "PASSWORD MATCH:",
+                verify_password(login_data.password, admin.password_hash)
+            )
+
         if not admin or not verify_password(login_data.password, admin.password_hash):
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
