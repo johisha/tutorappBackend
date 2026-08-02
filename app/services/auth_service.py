@@ -4,6 +4,7 @@ from app.utils.auth import get_password_hash, verify_password, create_access_tok
 from app.schemas.schemas import StudentRegister, TeacherRegister, Login
 from fastapi import HTTPException, status
 import time
+from sqlalchemy import text
 
 
 def register_student(db: Session, student_data: StudentRegister):
@@ -105,7 +106,19 @@ def login(db: Session, login_data: Login):
     elif login_data.role == "student":
 
         start = time.time()
-        user = db.query(Student).filter(Student.email == login_data.email).first()
+        # user = db.query(Student).filter(Student.email == login_data.email).first()
+        
+
+        start = time.time()
+
+        result = db.execute(
+        text("SELECT * FROM students WHERE email = :email LIMIT 1"),
+        {"email": login_data.email}
+)
+
+        user = result.first()
+
+        print("Raw SQL Time:", time.time() - start)
         print("Student DB Query Time:", time.time() - start)
 
         if not user:
