@@ -6,7 +6,7 @@ from app.api.v1 import auth, students, teachers, reviews, demo, admin
 
 
 # Create tables
-Base.metadata.create_all(bind=engine)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="TutorConnect API",

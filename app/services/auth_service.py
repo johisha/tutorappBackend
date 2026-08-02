@@ -3,6 +3,7 @@ from app.models.models import Student, Teacher, Admin
 from app.utils.auth import get_password_hash, verify_password, create_access_token
 from app.schemas.schemas import StudentRegister, TeacherRegister, Login
 from fastapi import HTTPException, status
+import time
 
 
 def register_student(db: Session, student_data: StudentRegister):
@@ -75,12 +76,9 @@ def login(db: Session, login_data: Login):
         print("ADMIN FOUND:", admin)
 
         if admin:
-           print("EMAIL FROM DB:", admin.email)
-           print("HASH FROM DB:", admin.password_hash)
-           print(
-                "PASSWORD MATCH:",
-                verify_password(login_data.password, admin.password_hash)
-            )
+            print("EMAIL FROM DB:", admin.email)
+            print("HASH FROM DB:", admin.password_hash)
+            print("PASSWORD MATCH:", verify_password(login_data.password, admin.password_hash))
 
         if not admin or not verify_password(login_data.password, admin.password_hash):
             raise HTTPException(
@@ -104,18 +102,44 @@ def login(db: Session, login_data: Login):
         }
 
     elif login_data.role == "student":
-        user = db.query(Student).filter(Student.email == login_data.email).first()
 
-        if not user or not verify_password(login_data.password, user.password_hash):
+        start = time.time()
+        user = db.query(Student).filter(Student.email == login_data.email).first()
+        print("Student DB Query Time:", time.time() - start)
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+
+        start = time.time()
+        password_ok = verify_password(login_data.password, user.password_hash)
+        print("Student Password Verify Time:", time.time() - start)
+
+        if not password_ok:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
             )
 
     elif login_data.role == "teacher":
-        user = db.query(Teacher).filter(Teacher.email == login_data.email).first()
 
-        if not user or not verify_password(login_data.password, user.password_hash):
+        start = time.time()
+        user = db.query(Teacher).filter(Teacher.email == login_data.email).first()
+        print("Teacher DB Query Time:", time.time() - start)
+
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid email or password"
+            )
+
+        start = time.time()
+        password_ok = verify_password(login_data.password, user.password_hash)
+        print("Teacher Password Verify Time:", time.time() - start)
+
+        if not password_ok:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
@@ -127,10 +151,17 @@ def login(db: Session, login_data: Login):
             detail="Invalid role"
         )
 
+    start = time.time()
+
     token = create_access_token(
-        data={"sub": str(user.id), "email": user.email},
+        data={
+            "sub": str(user.id),
+            "email": user.email
+        },
         role=login_data.role
     )
+
+    print("Token Creation Time:", time.time() - start)
 
     return {
         "access_token": token,
