@@ -68,6 +68,7 @@ def register_teacher(db: Session, teacher_data: TeacherRegister):
 # 
 
 def login(db: Session, login_data: Login):
+    start = time.time()
     print("LOGIN REQUEST:", login_data.dict())
 
     if login_data.role == "admin":
@@ -162,7 +163,7 @@ def login(db: Session, login_data: Login):
     )
 
     print("Token Creation Time:", time.time() - start)
-
+    print("Total Login Time:", time.time() - start)
     return {
         "access_token": token,
         "token_type": "bearer",
