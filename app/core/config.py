@@ -4,7 +4,7 @@ from typing import Optional
 
 class Settings(BaseSettings):
     # Database
-    DATABASE_URL: str = "postgresql://postgres:TutorApp123@localhost:5432/tutorapp"
+    DATABASE_URL: str = "postgresql://postgres:TutorApp123@127.0.0.1:5432/tutorapp"
      
     # JWT
     SECRET_KEY: str = "your-secret-key-here-change-in-production"
