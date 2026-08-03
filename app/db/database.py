@@ -15,8 +15,19 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()
 def get_db():
+    import time
+
+    start = time.time()
     db = SessionLocal()
+    print("SessionLocal Creation:", time.time() - start)
+
     try:
         yield db
     finally:
