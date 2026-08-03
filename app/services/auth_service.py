@@ -151,7 +151,7 @@ def login(db: Session, login_data: Login):
          start = time.time()
          password_ok = verify_password(login_data.password, user.password_hash)
          print("Student Password Verify Time:", time.time() - start)
-    if not password_ok:
+         if not password_ok:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
