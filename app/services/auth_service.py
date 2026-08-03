@@ -103,35 +103,55 @@ def login(db: Session, login_data: Login):
             "user_id": admin.id
         }
 
-    elif login_data.role == "student":
+#     elif login_data.role == "student":
 
-        start = time.time()
-        # user = db.query(Student).filter(Student.email == login_data.email).first()
+#         start = time.time()
+#         # user = db.query(Student).filter(Student.email == login_data.email).first()
         
 
-        start = time.time()
+#         start = time.time()
 
-        result = db.execute(
-        text("SELECT * FROM students WHERE email = :email LIMIT 1"),
-        {"email": login_data.email}
-)
+#         result = db.execute(
+#         text("SELECT * FROM students WHERE email = :email LIMIT 1"),
+#         {"email": login_data.email}
+# )
 
-        user = result.first()
+#         user = result.first()
 
-        print("Raw SQL Time:", time.time() - start)
-        print("Student DB Query Time:", time.time() - start)
+#         print("Raw SQL Time:", time.time() - start)
+#         print("Student DB Query Time:", time.time() - start)
 
-        if not user:
+#         if not user:
+#             raise HTTPException(
+#                 status_code=status.HTTP_401_UNAUTHORIZED,
+#                 detail="Invalid email or password"
+#             )
+
+#         start = time.time()
+#         password_ok = verify_password(login_data.password, user.password_hash)
+#         print("Student Password Verify Time:", time.time() - start)
+
+
+    elif login_data.role == "student":
+
+         start = time.time()
+         db.execute(text("SELECT 1"))
+         print("SELECT 1 Time:", time.time() - start)
+
+         start = time.time()
+         user = db.query(Student).filter(Student.email == login_data.email).first()
+         print("Student DB Query Time:", time.time() - start)
+
+         if not user:
             raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid email or password"
-            )
+                 status_code=status.HTTP_401_UNAUTHORIZED,
+                 detail="Invalid email or password"
+        )
 
-        start = time.time()
-        password_ok = verify_password(login_data.password, user.password_hash)
-        print("Student Password Verify Time:", time.time() - start)
-
-        if not password_ok:
+         start = time.time()
+         password_ok = verify_password(login_data.password, user.password_hash)
+         print("Student Password Verify Time:", time.time() - start)
+    if not password_ok:
             raise HTTPException(
                 status_code=status.HTTP_401_UNAUTHORIZED,
                 detail="Invalid email or password"
