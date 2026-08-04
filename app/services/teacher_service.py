@@ -1,78 +1,280 @@
+# from sqlalchemy.orm import Session
+# from sqlalchemy import func
+# from app.models.models import Teacher, Review
+# from app.schemas.schemas import TeacherProfile, NearbySearch
+# from fastapi import HTTPException, status
+# from typing import List, Optional
+# import math
+
+
+# def haversine_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
+#     """Calculate distance between two points in kilometers"""
+#     R = 6371  # Earth's radius in kilometers
+    
+#     lat1_rad, lng1_rad = math.radians(lat1), math.radians(lng1)
+#     lat2_rad, lng2_rad = math.radians(lat2), math.radians(lng2)
+    
+#     dlat = lat2_rad - lat1_rad
+#     dlng = lng2_rad - lng1_rad
+    
+#     a = math.sin(dlat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlng / 2) ** 2
+#     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
+    
+#     return R * c
+
+
+# def get_all_teachers(db: Session):
+#     teachers = db.query(Teacher).filter(Teacher.is_verified == True).all()
+    
+#     result = []
+#     for teacher in teachers:
+#         review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
+#         avg_rating = (
+#     db.query(func.avg(Review.rating))
+#     .filter(Review.teacher_id == teacher.id)
+#     .scalar()
+# )
+        
+#         teacher_dict = {
+#             "id": teacher.id,
+#             "name": teacher.name,
+#             "email": teacher.email,
+#             "phone": teacher.phone,
+#             "profile_photo_url": teacher.profile_photo_url,
+#             "experience": teacher.experience,
+#             "subjects": teacher.subjects,
+#             "hourly_fee": teacher.hourly_fee,
+#             "address": teacher.address,
+#             "latitude": teacher.latitude,
+#             "longitude": teacher.longitude,
+#             "is_verified": teacher.is_verified,
+#             "rating": avg_rating if avg_rating else None,
+#             "review_count": review_count
+#         }
+#         result.append(teacher_dict)
+    
+#     return result
+
+
+# def get_teacher_by_id(db: Session, teacher_id: int):
+#     teacher = db.query(Teacher).filter(Teacher.id == teacher_id, Teacher.is_verified == True).first()
+    
+#     if not teacher:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Teacher not found"
+#         )
+    
+#     review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
+#     avg_rating = (
+#     db.query(func.avg(Review.rating))
+#     .filter(Review.teacher_id == teacher.id)
+#     .scalar()
+# )
+    
+#     teacher_dict = {
+#         "id": teacher.id,
+#         "name": teacher.name,
+#         "email": teacher.email,
+#         "phone": teacher.phone,
+#         "profile_photo_url": teacher.profile_photo_url,
+#         "experience": teacher.experience,
+#         "subjects": teacher.subjects,
+#         "hourly_fee": teacher.hourly_fee,
+#         "address": teacher.address,
+#         "latitude": teacher.latitude,
+#         "longitude": teacher.longitude,
+#         "is_verified": teacher.is_verified,
+#         "rating": avg_rating if avg_rating else None,
+#         "review_count": review_count
+#     }
+    
+#     return teacher_dict
+
+
+# def update_teacher_profile(db: Session, teacher_id: int, profile_data: TeacherProfile):
+#     teacher = db.query(Teacher).filter(Teacher.id == teacher_id).first()
+    
+#     if not teacher:
+#         raise HTTPException(
+#             status_code=status.HTTP_404_NOT_FOUND,
+#             detail="Teacher not found"
+#         )
+    
+#     update_data = profile_data.dict(exclude_unset=True)
+#     for field, value in update_data.items():
+#         if value is not None:
+#             setattr(teacher, field, value)
+    
+#     db.commit()
+#     db.refresh(teacher)
+    
+#     return teacher
+
+
+# def get_teachers_nearby(db: Session, lat: float, lng: float, radius: float = 5,subject:str="",maxPrice:float=999999):
+#     teachers = db.query(Teacher).filter(Teacher.is_verified == True).all()
+    
+#     result = []
+#     for teacher in teachers:
+
+#      if teacher.latitude and teacher.longitude:
+
+#         distance = haversine_distance(lat, lng, teacher.latitude, teacher.longitude)
+#         # Skip if teacher is outside the radius
+#         if distance > radius:
+#         continue
+
+#         # Skip if subject doesn't match
+#         if subject and subject.lower() not in teacher.subjects.lower():
+#         continue
+
+#         # Skip if teacher fee is greater than student's budget
+#         if teacher.hourly_fee > max_price:
+#         continue
+
+#         print("\n========== LOCATION DEBUG ==========")
+#         print(f"Student Location : {lat}, {lng}")
+#         print(f"Teacher Name     : {teacher.name}")
+#         print(f"Teacher Location : {teacher.latitude}, {teacher.longitude}")
+#         print(f"Distance         : {distance:.2f} km")
+#         print(f"Radius           : {radius} km")
+#         print("====================================\n")
+
+    
+#             review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
+#             avg_rating = (
+#             db.query(func.avg(Review.rating))
+#             .filter(Review.teacher_id == teacher.id)
+#             .scalar()
+# )
+                
+#                 teacher_dict = {
+#                     "id": teacher.id,
+#                     "name": teacher.name,
+#                     "email": teacher.email,
+#                     "phone": teacher.phone,
+#                     "profile_photo_url": teacher.profile_photo_url,
+#                     "experience": teacher.experience,
+#                     "subjects": teacher.subjects,
+#                     "hourly_fee": teacher.hourly_fee,
+#                     "address": teacher.address,
+#                     "latitude": teacher.latitude,
+#                     "longitude": teacher.longitude,
+#                     "is_verified": teacher.is_verified,
+#                     "rating": avg_rating if avg_rating else None,
+#                     "distance": distance,
+#                     "review_count": review_count
+#                 }
+#                 result.append(teacher_dict)
+    
+#     # Sort by distance
+#     result.sort(key=lambda x: x["distance"])
+    
+#     return result
 from sqlalchemy.orm import Session
 from sqlalchemy import func
 from app.models.models import Teacher, Review
-from app.schemas.schemas import TeacherProfile, NearbySearch
+from app.schemas.schemas import TeacherProfile
 from fastapi import HTTPException, status
-from typing import List, Optional
 import math
 
 
 def haversine_distance(lat1: float, lng1: float, lat2: float, lng2: float) -> float:
     """Calculate distance between two points in kilometers"""
     R = 6371  # Earth's radius in kilometers
-    
-    lat1_rad, lng1_rad = math.radians(lat1), math.radians(lng1)
-    lat2_rad, lng2_rad = math.radians(lat2), math.radians(lng2)
-    
+
+    lat1_rad = math.radians(lat1)
+    lng1_rad = math.radians(lng1)
+    lat2_rad = math.radians(lat2)
+    lng2_rad = math.radians(lng2)
+
     dlat = lat2_rad - lat1_rad
     dlng = lng2_rad - lng1_rad
-    
-    a = math.sin(dlat / 2) ** 2 + math.cos(lat1_rad) * math.cos(lat2_rad) * math.sin(dlng / 2) ** 2
+
+    a = (
+        math.sin(dlat / 2) ** 2
+        + math.cos(lat1_rad)
+        * math.cos(lat2_rad)
+        * math.sin(dlng / 2) ** 2
+    )
+
     c = 2 * math.atan2(math.sqrt(a), math.sqrt(1 - a))
-    
+
     return R * c
 
 
 def get_all_teachers(db: Session):
     teachers = db.query(Teacher).filter(Teacher.is_verified == True).all()
-    
+
     result = []
+
     for teacher in teachers:
-        review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
+
+        review_count = (
+            db.query(Review)
+            .filter(Review.teacher_id == teacher.id)
+            .count()
+        )
+
         avg_rating = (
-    db.query(func.avg(Review.rating))
-    .filter(Review.teacher_id == teacher.id)
-    .scalar()
-)
-        
-        teacher_dict = {
-            "id": teacher.id,
-            "name": teacher.name,
-            "email": teacher.email,
-            "phone": teacher.phone,
-            "profile_photo_url": teacher.profile_photo_url,
-            "experience": teacher.experience,
-            "subjects": teacher.subjects,
-            "hourly_fee": teacher.hourly_fee,
-            "address": teacher.address,
-            "latitude": teacher.latitude,
-            "longitude": teacher.longitude,
-            "is_verified": teacher.is_verified,
-            "rating": avg_rating if avg_rating else None,
-            "review_count": review_count
-        }
-        result.append(teacher_dict)
-    
+            db.query(func.avg(Review.rating))
+            .filter(Review.teacher_id == teacher.id)
+            .scalar()
+        )
+
+        result.append(
+            {
+                "id": teacher.id,
+                "name": teacher.name,
+                "email": teacher.email,
+                "phone": teacher.phone,
+                "profile_photo_url": teacher.profile_photo_url,
+                "experience": teacher.experience,
+                "subjects": teacher.subjects,
+                "hourly_fee": teacher.hourly_fee,
+                "address": teacher.address,
+                "latitude": teacher.latitude,
+                "longitude": teacher.longitude,
+                "is_verified": teacher.is_verified,
+                "rating": avg_rating if avg_rating else None,
+                "review_count": review_count,
+            }
+        )
+
     return result
 
 
 def get_teacher_by_id(db: Session, teacher_id: int):
-    teacher = db.query(Teacher).filter(Teacher.id == teacher_id, Teacher.is_verified == True).first()
-    
+
+    teacher = (
+        db.query(Teacher)
+        .filter(
+            Teacher.id == teacher_id,
+            Teacher.is_verified == True
+        )
+        .first()
+    )
+
     if not teacher:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Teacher not found"
         )
-    
-    review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
+
+    review_count = (
+        db.query(Review)
+        .filter(Review.teacher_id == teacher.id)
+        .count()
+    )
+
     avg_rating = (
-    db.query(func.avg(Review.rating))
-    .filter(Review.teacher_id == teacher.id)
-    .scalar()
-)
-    
-    teacher_dict = {
+        db.query(func.avg(Review.rating))
+        .filter(Review.teacher_id == teacher.id)
+        .scalar()
+    )
+
+    return {
         "id": teacher.id,
         "name": teacher.name,
         "email": teacher.email,
@@ -86,41 +288,55 @@ def get_teacher_by_id(db: Session, teacher_id: int):
         "longitude": teacher.longitude,
         "is_verified": teacher.is_verified,
         "rating": avg_rating if avg_rating else None,
-        "review_count": review_count
+        "review_count": review_count,
     }
-    
-    return teacher_dict
 
 
 def update_teacher_profile(db: Session, teacher_id: int, profile_data: TeacherProfile):
+
     teacher = db.query(Teacher).filter(Teacher.id == teacher_id).first()
-    
+
     if not teacher:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Teacher not found"
         )
-    
+
     update_data = profile_data.dict(exclude_unset=True)
+
     for field, value in update_data.items():
         if value is not None:
             setattr(teacher, field, value)
-    
+
     db.commit()
     db.refresh(teacher)
-    
+
     return teacher
 
 
-def get_teachers_nearby(db: Session, lat: float, lng: float, radius: float = 5):
+def get_teachers_nearby(
+    db: Session,
+    lat: float,
+    lng: float,
+    radius: float = 5,
+    subject: str = "",
+    maxPrice: float = 999999,
+):
     teachers = db.query(Teacher).filter(Teacher.is_verified == True).all()
-    
+
     result = []
+
     for teacher in teachers:
 
-     if teacher.latitude and teacher.longitude:
+        if teacher.latitude is None or teacher.longitude is None:
+            continue
 
-        distance = haversine_distance(lat, lng, teacher.latitude, teacher.longitude)
+        distance = haversine_distance(
+            lat,
+            lng,
+            teacher.latitude,
+            teacher.longitude,
+        )
 
         print("\n========== LOCATION DEBUG ==========")
         print(f"Student Location : {lat}, {lng}")
@@ -128,37 +344,55 @@ def get_teachers_nearby(db: Session, lat: float, lng: float, radius: float = 5):
         print(f"Teacher Location : {teacher.latitude}, {teacher.longitude}")
         print(f"Distance         : {distance:.2f} km")
         print(f"Radius           : {radius} km")
+        print(f"Subject          : {subject}")
+        print(f"Max Price        : {maxPrice}")
         print("====================================\n")
 
-        if distance <= radius:
-    
-                review_count = db.query(Review).filter(Review.teacher_id == teacher.id).count()
-                avg_rating = (
-    db.query(func.avg(Review.rating))
-    .filter(Review.teacher_id == teacher.id)
-    .scalar()
-)
-                
-                teacher_dict = {
-                    "id": teacher.id,
-                    "name": teacher.name,
-                    "email": teacher.email,
-                    "phone": teacher.phone,
-                    "profile_photo_url": teacher.profile_photo_url,
-                    "experience": teacher.experience,
-                    "subjects": teacher.subjects,
-                    "hourly_fee": teacher.hourly_fee,
-                    "address": teacher.address,
-                    "latitude": teacher.latitude,
-                    "longitude": teacher.longitude,
-                    "is_verified": teacher.is_verified,
-                    "rating": avg_rating if avg_rating else None,
-                    "distance": distance,
-                    "review_count": review_count
-                }
-                result.append(teacher_dict)
-    
-    # Sort by distance
+        # Distance filter
+        if distance > radius:
+            continue
+
+        # Subject filter
+        if subject.strip():
+            if subject.lower() not in teacher.subjects.lower():
+                continue
+
+        # Price filter
+        if teacher.hourly_fee > maxPrice:
+            continue
+
+        review_count = (
+            db.query(Review)
+            .filter(Review.teacher_id == teacher.id)
+            .count()
+        )
+
+        avg_rating = (
+            db.query(func.avg(Review.rating))
+            .filter(Review.teacher_id == teacher.id)
+            .scalar()
+        )
+
+        result.append(
+            {
+                "id": teacher.id,
+                "name": teacher.name,
+                "email": teacher.email,
+                "phone": teacher.phone,
+                "profile_photo_url": teacher.profile_photo_url,
+                "experience": teacher.experience,
+                "subjects": teacher.subjects,
+                "hourly_fee": teacher.hourly_fee,
+                "address": teacher.address,
+                "latitude": teacher.latitude,
+                "longitude": teacher.longitude,
+                "is_verified": teacher.is_verified,
+                "rating": avg_rating if avg_rating else None,
+                "distance": distance,
+                "review_count": review_count,
+            }
+        )
+
     result.sort(key=lambda x: x["distance"])
-    
+
     return result

@@ -37,13 +37,17 @@ def get_nearby_teachers(
     lat: float,
     lng: float,
     radius: float = 5,
+    subject: str = "",
+    maxPrice: float = 999999,
     db: Session = Depends(get_db)
 ):
     """Get teachers within radius kilometers"""
     print("Student Latitude :", lat)
     print("Student Longitude:", lng)
     print("Radius           :", radius)
-    return get_teachers_nearby(db, lat, lng, radius)
+    print("Subject          :", subject)
+    print("Max Price        :", maxPrice)
+    return get_teachers_nearby(db, lat, lng, radius,subject,maxPrice)
 
 
 @router.get("/{teacher_id}")
@@ -99,31 +103,3 @@ def upload_profile_photo(
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@router.put("/profile")
-def update_teacher_profile(
-    profile_data: TeacherProfile,
-    current_teacher: Teacher = Depends(get_current_teacher),
-    db: Session = Depends(get_db)
-):
-    """Update teacher profile"""
-    return update_teacher_profile(db, current_teacher.id, profile_data)
-
-
-@router.post("/upload-profile-photo")
-def upload_profile_photo(
-    file: UploadFile = File(...),
-    current_teacher: Teacher = Depends(get_current_teacher),
-    db: Session = Depends(get_db)
-):
-    """Upload teacher profile photo"""
-    try:
-        file_bytes = file.file.read()
-        filename = f"{uuid.uuid4()}_{file.filename}"
-        url = upload_file_from_bytes(file_bytes, filename, "teacher-profiles")
-        
-        current_teacher.profile_photo_url = url
-        db.commit()
-        
-        return {"message": "Profile photo uploaded successfully", "url": url}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
